@@ -34,6 +34,7 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
     }
     
     func alertFailure() {
+        indicator.stopAnimating()
         let alert = UIAlertController(title: "Posting Error", message:
             "There was an error posting your location.", preferredStyle: UIAlertControllerStyle.alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))

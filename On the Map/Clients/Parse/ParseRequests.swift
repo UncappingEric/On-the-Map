@@ -18,7 +18,7 @@ extension ParseClient {
         let id = UdacityClient.sharedInstance().userID!
         var request: URLRequest!
         
-        if studentLocation == nil {
+        if StudentInformation.studentLocation == nil {
             request = URLRequest(url: urlWithParameters(ParseClient.Methods.GetLocations, parameters: parameters))
             
             request.httpMethod = "POST"
@@ -38,6 +38,7 @@ extension ParseClient {
             
             guard let placemarks = placemarks, let location = placemarks.first?.location else {
                     print("Location cannot be transalated")
+                    hostView.indicator.stopAnimating()
                     let alert = UIAlertController(title: "Location Error", message:
                         "The location entered is not valid.", preferredStyle: UIAlertControllerStyle.alert)
                     alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
@@ -92,10 +93,9 @@ extension ParseClient {
         let session = URLSession.shared
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            
             func reportError(_ error: String) {
                 print(error)
-                ParseClient.sharedInstance().locations = [StudentInformation]()
+                StudentInformation.locations = [StudentInformation]()
                 return
             }
             
@@ -125,6 +125,7 @@ extension ParseClient {
             hostView.getMap().removeAnnotations(ParseClient.sharedInstance().annotations)
             self.storeStudentLocations(resultsDict)
             ParseClient.sharedInstance().generateAnnotations()
+            
             ParseClient.sharedInstance().getStudentLocation()
             
             DispatchQueue.main.async {
@@ -187,19 +188,19 @@ extension ParseClient {
                     return
                 }
                 
-                ParseClient.sharedInstance().studentLocation = StudentInformation.init(resultsArray[0])
+                StudentInformation.studentLocation = StudentInformation.init(resultsArray[0])
                 ParseClient.sharedInstance().objectID = id
             } else {
                 for dict in resultsArray {
                     if self.objectID == dict["objectId"] as! String? {
-                        ParseClient.sharedInstance().studentLocation = StudentInformation.init(dict)
+                        StudentInformation.studentLocation = StudentInformation.init(dict)
                         break
                     }
                 }
             }
             
             if hostView != nil {
-                let student = ParseClient.sharedInstance().studentLocation!
+                let student = StudentInformation.studentLocation!
                 
                 let lat = CLLocationDegrees(student.lat!)
                 let long = CLLocationDegrees(student.lon!)
@@ -230,6 +231,6 @@ extension ParseClient {
             loc.append(sL)
         }
         
-       self.locations = loc
+       StudentInformation.locations = loc
     }
 }

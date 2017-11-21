@@ -11,8 +11,6 @@ import MapKit
 
 class ParseClient {
     
-    var studentLocation: StudentInformation?
-    var locations = [StudentInformation]()
     var annotations = [MKPointAnnotation]()
     var objectID: String?
     
@@ -42,7 +40,7 @@ class ParseClient {
     func generateAnnotations() {
         annotations = [MKPointAnnotation]()
         
-        for student in locations {
+        for student in StudentInformation.locations {
             if let studentLat = student.lat,
                 let StudentLon = student.lon {
                     let lat = CLLocationDegrees(studentLat)
