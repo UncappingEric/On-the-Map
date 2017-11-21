@@ -61,7 +61,7 @@ extension UdacityClient {
                     return
             }
             
-            self.updateInMain {
+            updateInMain {
                 hostView.dismiss(animated: true, completion: nil)
             }
         }
@@ -79,7 +79,7 @@ extension UdacityClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func reportError(_ error: String, labelString: String = "Error with connection.") {
-                self.updateInMain {
+                updateInMain {
                     hostView.enableUI(enable: true)
                     print(error)
                     hostView.errorLabel.text = labelString
@@ -143,7 +143,7 @@ extension UdacityClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func reportError(_ error: String, labelString: String = "Error with connection.") {
-                self.updateInMain {
+                updateInMain {
                     hostView.enableUI(enable: true)
                     print(error)
                     hostView.errorLabel.text = labelString
@@ -181,11 +181,5 @@ extension UdacityClient {
             completion()
         }
         task.resume()
-    }
-    
-    func updateInMain(_ updates: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            updates()
-        }
     }
 }

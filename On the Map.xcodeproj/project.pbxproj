@@ -24,6 +24,7 @@
 		0742E8021FB4EE2E00C7C4B5 /* UdacityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0742E8011FB4EE2E00C7C4B5 /* UdacityClient.swift */; };
 		0742E8041FB4F0CA00C7C4B5 /* UdacityRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0742E8031FB4F0CA00C7C4B5 /* UdacityRequests.swift */; };
 		0743FE311FC4C515008B20CD /* StudentInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0743FE301FC4C515008B20CD /* StudentInformation.swift */; };
+		0743FE331FC4DAAC008B20CD /* UIUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0743FE321FC4DAAC008B20CD /* UIUpdates.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		0742E8011FB4EE2E00C7C4B5 /* UdacityClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UdacityClient.swift; sourceTree = "<group>"; };
 		0742E8031FB4F0CA00C7C4B5 /* UdacityRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UdacityRequests.swift; sourceTree = "<group>"; };
 		0743FE301FC4C515008B20CD /* StudentInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentInformation.swift; sourceTree = "<group>"; };
+		0743FE321FC4DAAC008B20CD /* UIUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIUpdates.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 				071D01201FBBC8E800079115 /* Controllers */,
 				0742E7F31FB15A8C00C7C4B5 /* LaunchScreen.storyboard */,
 				0742E7EE1FB15A8C00C7C4B5 /* Main.storyboard */,
+				0743FE321FC4DAAC008B20CD /* UIUpdates.swift */,
 			);
 			path = "On the Map";
 			sourceTree = "<group>";
@@ -214,6 +217,7 @@
 			files = (
 				0743FE311FC4C515008B20CD /* StudentInformation.swift in Sources */,
 				0742E8021FB4EE2E00C7C4B5 /* UdacityClient.swift in Sources */,
+				0743FE331FC4DAAC008B20CD /* UIUpdates.swift in Sources */,
 				071D01151FBB512400079115 /* TableViewController.swift in Sources */,
 				071D011F1FBB6E5300079115 /* TabBarController.swift in Sources */,
 				0742E8041FB4F0CA00C7C4B5 /* UdacityRequests.swift in Sources */,

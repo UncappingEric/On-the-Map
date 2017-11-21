@@ -12,7 +12,7 @@ import UIKit
 class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let urlString = ParseClient.sharedInstance().locations[indexPath.row].url else {
+        guard let urlString = StudentInformation.locations[indexPath.row].url else {
             let alert = UIAlertController(title: "URL Error", message:
                 "No URL to Open.", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
@@ -34,7 +34,7 @@ class TableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let table = ParseClient.sharedInstance().locations
+        let table = StudentInformation.locations
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "studentCell")!
         let info = table[indexPath.row]
@@ -55,7 +55,7 @@ class TableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return ParseClient.sharedInstance().locations.count
+        return StudentInformation.locations.count
     }
     
 }

@@ -59,7 +59,7 @@ extension ParseClient {
                 
                 func reportError(_ error: String) {
                     print(error)
-                    DispatchQueue.main.async {
+                    updateInMain {
                         hostView.alertFailure()
                     }
                     return
@@ -128,7 +128,7 @@ extension ParseClient {
             
             ParseClient.sharedInstance().getStudentLocation()
             
-            DispatchQueue.main.async {
+            updateInMain {
                 hostView.getMap().addAnnotations(ParseClient.sharedInstance().annotations)
                 hostView.table?.reloadData()
             }
@@ -213,7 +213,7 @@ extension ParseClient {
                 annotation.subtitle = student.url
                 
                 (hostView as! SuccessfulPostController).map.addAnnotation(annotation)
-                DispatchQueue.main.async {
+                updateInMain {
                     (hostView as! SuccessfulPostController).zoomOnPin(coordinate)
                 }
             }
