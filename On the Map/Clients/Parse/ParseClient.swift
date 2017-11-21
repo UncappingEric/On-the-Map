@@ -43,18 +43,20 @@ class ParseClient {
         annotations = [MKPointAnnotation]()
         
         for student in locations {
-            
-            let lat = CLLocationDegrees(student.lat!)
-            let long = CLLocationDegrees(student.lon!)
-            
-            let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = coordinate
-            annotation.title = "\(student.first!) \(student.last!)"
-            annotation.subtitle = student.url
-            
-            annotations.append(annotation)
+            if let studentLat = student.lat,
+                let StudentLon = student.lon {
+                    let lat = CLLocationDegrees(studentLat)
+                    let long = CLLocationDegrees(StudentLon)
+                
+                    let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+                
+                    let annotation = MKPointAnnotation()
+                    annotation.coordinate = coordinate
+                    annotation.title = "\(student.first!) \(student.last!)"
+                    annotation.subtitle = student.url
+                
+                    annotations.append(annotation)
+            }
         }
     }
 }

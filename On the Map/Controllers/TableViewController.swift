@@ -12,11 +12,24 @@ import UIKit
 class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let urlString = ParseClient.sharedInstance().locations[indexPath.row].url!
-        let url = URL(string: urlString)
+        guard let urlString = ParseClient.sharedInstance().locations[indexPath.row].url else {
+            let alert = UIAlertController(title: "URL Error", message:
+                "No URL to Open.", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
+        let url = URL(string: urlString)!
+        tableView.deselectRow(at: indexPath, animated: true)
 
-        if let url = url {
+        if UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [String: Any](), completionHandler: nil)
+        } else {
+            let alert = UIAlertController(title: "URL Error", message:
+                "Error opening up ill-formatted URL.", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+            present(alert, animated: true, completion: nil)
         }
     }
     
@@ -26,8 +39,17 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "studentCell")!
         let info = table[indexPath.row]
         
-        cell.textLabel?.text = "\(info.first!) \(info.last!)"
-        cell.detailTextLabel?.text = info.url!
+        if let first = info.first, let last = info.last {
+            cell.textLabel?.text = "\(first) \(last)"
+        } else {
+            cell.textLabel?.text = "Nilly Null"
+        }
+        
+        if let url = info.url {
+            cell.detailTextLabel?.text = url
+        } else {
+            cell.detailTextLabel?.text = "www.nilly-null.com"
+        }
         
         return cell
     }

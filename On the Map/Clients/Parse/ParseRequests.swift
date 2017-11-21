@@ -38,7 +38,10 @@ extension ParseClient {
             
             guard let placemarks = placemarks, let location = placemarks.first?.location else {
                     print("Location cannot be transalated")
-                    request.httpBody = "{\"uniqueKey\": \"\(id)\", \"firstName\": \"\(f!)\", \"lastName\": \"\(l!)\",\"mapString\": \"\(loc)\", \"mediaURL\": \"\(link)\",\"latitude\": 37.386052, \"longitude\": -122.083851}".data(using: .utf8)
+                    let alert = UIAlertController(title: "Location Error", message:
+                        "The location entered is not valid.", preferredStyle: UIAlertControllerStyle.alert)
+                    alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+                    hostView.present(alert, animated: true, completion: nil)
                     return
             }
             
@@ -55,10 +58,9 @@ extension ParseClient {
                 
                 func reportError(_ error: String) {
                     print(error)
-                    let alert = UIAlertController(title: "Posting Error", message:
-                        "There was an issue posting your location.", preferredStyle: UIAlertControllerStyle.alert)
-                    alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-                    hostView.present(alert, animated: true, completion: nil)
+                    DispatchQueue.main.async {
+                        hostView.alertFailure()
+                    }
                     return
                 }
                 
@@ -81,7 +83,7 @@ extension ParseClient {
     
     func getPostedData (_ hostView: TabBarController){
         let parameters = [ParameterKeys.Limit   : ParameterValues.MaxLimit,
-                          ParameterKeys.Order   : ParameterValues.AscendingUpdate]
+                          ParameterKeys.Order   : ParameterValues.DescendingUpdate]
         
         var request = URLRequest(url: urlWithParameters(ParseClient.Methods.GetLocations, parameters: parameters))
         request.addValue(Constants.ApId, forHTTPHeaderField: "X-Parse-Application-Id")
@@ -211,7 +213,7 @@ extension ParseClient {
                 
                 (hostView as! SuccessfulPostController).map.addAnnotation(annotation)
                 DispatchQueue.main.async {
-                    (hostView as! SuccessfulPostController).map.sizeToFit()
+                    (hostView as! SuccessfulPostController).zoomOnPin(coordinate)
                 }
             }
             

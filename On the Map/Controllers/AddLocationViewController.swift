@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class AddLocationViewController: UIViewController {
+class AddLocationViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var locationInput: UITextField!
     @IBOutlet weak var linkInput: UITextField!
@@ -18,6 +18,8 @@ class AddLocationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        locationInput.delegate = self
+        linkInput.delegate = self
         postButton.layer.cornerRadius = 5.0
     }
     
@@ -37,6 +39,11 @@ class AddLocationViewController: UIViewController {
             return false
         }
         
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         return true
     }
     

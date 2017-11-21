@@ -16,6 +16,7 @@ class MapController: UIViewController, MKMapViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        mapView.delegate = self
     }
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -36,22 +37,18 @@ class MapController: UIViewController, MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        print("callout")
         if control == view.rightCalloutAccessoryView {
-            if let url = view.annotation?.subtitle! {
-               UIApplication.shared.open(URL(string: url)!, options: [String: Any](), completionHandler: nil)
+            if let urlString = view.annotation?.subtitle! {
+                let url = URL(string: urlString)!
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [String: Any](), completionHandler: nil)
+                } else {
+                    let alert = UIAlertController(title: "URL Error", message:
+                        "Error opening up ill-formatted URL.", preferredStyle: UIAlertControllerStyle.alert)
+                    alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+                    present(alert, animated: true, completion: nil)
+                }
             }
         }
     }
-    
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        print("callout")
-        let urlString = view.annotation?.subtitle!
-        let url = URL(string: urlString!)
-
-        if let url = url {
-            UIApplication.shared.open(url, options: [String: Any](), completionHandler: nil)
-        }
-    }
-    
 }
