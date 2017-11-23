@@ -36,8 +36,31 @@ class LoginViewController: UIViewController {
         }
         
         //authenticate user
-        let input: [String] = [self.emailField.text!, self.passwordField.text!]
-        UdacityClient.sharedInstance().authenticate(input, hostView: self)
+        let input = [self.emailField.text!, self.passwordField.text!]
+        UdacityClient.sharedInstance().getSessionId(input) { (success, error) in
+            guard success else {
+                self.showErrorAndEnableUI(error!)
+                return
+            }
+            
+            UdacityClient.sharedInstance().getUserInfo({ (success, error) in
+                guard success else {
+                    self.showErrorAndEnableUI(error!)
+                    return
+                }
+                
+                self.loginComplete()
+            })
+            
+        }
+    }
+    
+    func showErrorAndEnableUI(_ error: [String]) {
+        print(error[0])
+        updateInMain {
+            self.enableUI(enable: true)
+            self.errorLabel.text = error[1]
+        }
     }
     
     func loginComplete() {

@@ -11,11 +11,7 @@ import UIKit
 
 extension UdacityClient {
     
-    func authenticate(_ input: [String], hostView: LoginViewController) {
-        getSessionId(input, hostView: hostView)
-    }
-    
-    func logOff(hostView: TabBarController) {
+    func logOff(_ completion: @escaping (_ success: Bool, _ error: String?)-> Void) {
         var request = URLRequest(url: URL(string: Methods.Session)!)
         request.httpMethod = "DELETE"
         
@@ -31,12 +27,7 @@ extension UdacityClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func showAlert(_ error: String) {
-                print(error)
-                let alert = UIAlertController(title: "Logoff Error", message:
-                    "There was an issue logging off.", preferredStyle: UIAlertControllerStyle.alert)
-                alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-                
-                hostView.present(alert, animated: true, completion: nil)
+                completion(false, error)
                 return
             }
             
@@ -61,14 +52,12 @@ extension UdacityClient {
                     return
             }
             
-            updateInMain {
-                hostView.dismiss(animated: true, completion: nil)
-            }
+           completion(true, nil)
         }
         task.resume()
     }
     
-    private func getSessionId(_ input: [String], hostView: LoginViewController) {
+    func getSessionId(_ input: [String], _ completion: @escaping (_ success: Bool, _ error: [String]?)-> Void) {
         
         var request = URLRequest(url: URL(string: UdacityClient.Methods.Session)!)
         request.httpMethod = "POST"
@@ -79,12 +68,8 @@ extension UdacityClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func reportError(_ error: String, labelString: String = "Error with connection.") {
-                updateInMain {
-                    hostView.enableUI(enable: true)
-                    print(error)
-                    hostView.errorLabel.text = labelString
-                    return
-                }
+                completion(false, [error, labelString])
+                return
             }
             
             guard error == nil else {
@@ -112,7 +97,6 @@ extension UdacityClient {
                     reportError("Recieved error extracting account and/or session dicts in \(parsedData).")
                     return
             }
-
             
             guard let registered = accountDict[ResponseKeys.Registered] as! Bool?,
                 let key = accountDict[ResponseKeys.Key] as! String?,
@@ -129,26 +113,20 @@ extension UdacityClient {
             self.sessionID = id
             self.userID = key
             
-            self.getUserInfo(hostView, completion: {
-                hostView.loginComplete()
-            })
+            completion(true, nil)
         }
         task.resume()
     }
     
-    func getUserInfo(_ hostView: LoginViewController, completion: @escaping () -> Void) {
+    func getUserInfo(_ completion: @escaping (_ success: Bool, _ error: [String]?) -> Void) {
         let urlString = URL(string: methodWithId(Methods.UserInfo))!
         let request = URLRequest(url: urlString)
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func reportError(_ error: String, labelString: String = "Error with connection.") {
-                updateInMain {
-                    hostView.enableUI(enable: true)
-                    print(error)
-                    hostView.errorLabel.text = labelString
-                    return
-                }
+                completion(false, [error, labelString])
+                return
             }
             
             guard error == nil else {
@@ -178,7 +156,7 @@ extension UdacityClient {
             
             self.userInfo = userDict
             
-            completion()
+            completion(true, nil)
         }
         task.resume()
     }

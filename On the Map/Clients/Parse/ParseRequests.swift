@@ -12,7 +12,7 @@ import MapKit
 
 extension ParseClient {
     
-    func postStudentInfo (_ hostView: SuccessfulPostController) {
+    func postStudentInfo (_ input: [String], _ completion: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
         let parameters = [String: String]()
         let user = UdacityClient.sharedInstance().userInfo!
         let id = UdacityClient.sharedInstance().userID!
@@ -30,20 +30,15 @@ extension ParseClient {
         
         let f = user["first_name"] as! String?
         let l = user["last_name"] as! String?
-        let loc = hostView.locationInput!
-        let link = hostView.linkInput!
+        let loc = input[0]
+        let link = input[1]
         
         let geoCoder = CLGeocoder()
         geoCoder.geocodeAddressString(loc) { (placemarks, error) in
             
             guard let placemarks = placemarks, let location = placemarks.first?.location else {
-                    print("Location cannot be transalated")
-                    hostView.indicator.stopAnimating()
-                    let alert = UIAlertController(title: "Location Error", message:
-                        "The location entered is not valid.", preferredStyle: UIAlertControllerStyle.alert)
-                    alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-                    hostView.present(alert, animated: true, completion: nil)
-                    return
+                completion(false, "Location cannot be transalated")
+                return
             }
             
             let lat = location.coordinate.latitude
@@ -58,10 +53,7 @@ extension ParseClient {
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 
                 func reportError(_ error: String) {
-                    print(error)
-                    updateInMain {
-                        hostView.alertFailure()
-                    }
+                    completion(false, error)
                     return
                 }
                 
@@ -75,14 +67,14 @@ extension ParseClient {
                     return
                 }
                 
-                self.getStudentLocation(hostView)
+                completion(true, nil)
             }
             
             task.resume()
         }
     }
     
-    func getPostedData (_ hostView: TabBarController){
+    func getPostedData (_ completion: @escaping (_ success: Bool, _ error: String?, _ data: [[String: Any]]?) -> Void) {
         let parameters = [ParameterKeys.Limit   : ParameterValues.MaxLimit,
                           ParameterKeys.Order   : ParameterValues.DescendingUpdate]
         
@@ -94,8 +86,7 @@ extension ParseClient {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             func reportError(_ error: String) {
-                print(error)
-                StudentInformation.locations = [StudentInformation]()
+                completion(false, error, nil)
                 return
             }
             
@@ -122,22 +113,13 @@ extension ParseClient {
                     return
             }
             
-            hostView.getMap().removeAnnotations(ParseClient.sharedInstance().annotations)
-            self.storeStudentLocations(resultsDict)
-            ParseClient.sharedInstance().generateAnnotations()
-            
-            ParseClient.sharedInstance().getStudentLocation()
-            
-            updateInMain {
-                hostView.getMap().addAnnotations(ParseClient.sharedInstance().annotations)
-                hostView.table?.reloadData()
-            }
+            completion(true, nil, resultsDict)
         }
     
         task.resume()
     }
     
-    func getStudentLocation(_ hostView: Any? = nil) {
+    func getStudentLocation(_ completion: @escaping (_ success: Bool, _ error: String?) -> Void) {
         var parameters: [String: String]?
             
         if objectID == nil {
@@ -156,7 +138,7 @@ extension ParseClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             func reportError(_ error: String) {
-                print(error)
+                completion(false, error)
                 return
             }
             
@@ -199,25 +181,7 @@ extension ParseClient {
                 }
             }
             
-            if hostView != nil {
-                let student = StudentInformation.studentLocation!
-                
-                let lat = CLLocationDegrees(student.lat!)
-                let long = CLLocationDegrees(student.lon!)
-                
-                let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-                
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = coordinate
-                annotation.title = "\(student.first!) \(student.last!)"
-                annotation.subtitle = student.url
-                
-                (hostView as! SuccessfulPostController).map.addAnnotation(annotation)
-                updateInMain {
-                    (hostView as! SuccessfulPostController).zoomOnPin(coordinate)
-                }
-            }
-            
+            completion(true, nil)
         }
         
         task.resume()

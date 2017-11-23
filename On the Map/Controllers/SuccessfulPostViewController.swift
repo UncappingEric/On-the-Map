@@ -23,7 +23,41 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         finish.layer.cornerRadius = 5.0
         
-        ParseClient.sharedInstance().postStudentInfo(self)
+        let input = [locationInput!, linkInput!]
+        
+        ParseClient.sharedInstance().postStudentInfo(input) { (success, error) in
+            guard success else {
+                print(error!)
+                self.alertFailure()
+                return
+            }
+            
+            ParseClient.sharedInstance().getStudentLocation({ (success, error) in
+                guard success else {
+                    print(error!)
+                    self.alertFailure()
+                    return
+                }
+            
+                let student = StudentInformation.studentLocation!
+                
+                let lat = CLLocationDegrees(student.lat!)
+                let long = CLLocationDegrees(student.lon!)
+                
+                let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+                
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = coordinate
+                annotation.title = "\(student.first!) \(student.last!)"
+                annotation.subtitle = student.url
+                
+                self.map.addAnnotation(annotation)
+                updateInMain {
+                    self.zoomOnPin(coordinate)
+                }
+                
+            })
+        }
     }
     
     func zoomOnPin(_ coordinate: CLLocationCoordinate2D) {
