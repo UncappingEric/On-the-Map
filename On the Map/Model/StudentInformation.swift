@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import MapKit
 
 struct StudentInformation{
     
     static var studentLocation: StudentInformation?
     static var locations = [StudentInformation]()
+    
+    static var translatedCoords: [CLLocationDegrees]?
     
     var first:  String?
     var last:   String?

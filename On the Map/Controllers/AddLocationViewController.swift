@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import MapKit
 
 class AddLocationViewController: UIViewController, UITextFieldDelegate {
     
@@ -15,6 +16,7 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var linkInput: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var postButton: UIButton!
+    @IBOutlet weak var indicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,23 +25,36 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
         postButton.layer.cornerRadius = 5.0
     }
     
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == "showPost" {
-            errorLabel.text = ""
-            enableUI(enable: false)
-            
-            if locationInput.text != "" && linkInput.text != "" {
-                //post info
-                enableUI(enable: true)
-                return true
-            }
-            
+    @IBAction func findLocation(_ sender: Any) {
+        errorLabel.text = ""
+        enableUI(enable: false)
+        
+        if locationInput.text == "" || linkInput.text == "" {
             enableUI(enable: true)
             errorLabel.text = "Missing location and/or link."
-            return false
+            return
         }
         
-        return true
+        let input = locationInput.text!
+        
+        indicator.startAnimating()
+        
+        ParseClient.sharedInstance().translateLocation(input) { (success, error) in
+            guard success else {
+                print(error!)
+                self.alertFailure()
+                return
+            }
+            
+            let controller = self.storyboard?.instantiateViewController(withIdentifier: "SuccessfulPostController") as! SuccessfulPostController
+            controller.input = [self.locationInput.text!, self.linkInput.text!]
+            
+            updateInMain {
+                self.indicator.stopAnimating()
+                self.enableUI(enable: true)
+                self.navigationController?.pushViewController(controller, animated: true)
+            }
+        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -47,12 +62,13 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showPost" {
-            let controller = segue.destination as! SuccessfulPostController
-            controller.locationInput = locationInput.text
-            controller.linkInput = linkInput.text
-        }
+    func alertFailure() {
+        indicator.stopAnimating()
+        enableUI(enable: true)
+        let alert = UIAlertController(title: "Location Error", message:
+            "There was an error finding your location.", preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+        present(alert, animated: true, completion: nil)
     }
     
     func enableUI(enable: Bool) {

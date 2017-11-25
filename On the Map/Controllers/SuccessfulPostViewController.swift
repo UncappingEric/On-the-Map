@@ -16,53 +16,28 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
     
-    var locationInput: String?
-    var linkInput: String?
+    var input: [String]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         finish.layer.cornerRadius = 5.0
         
-        let input = [locationInput!, linkInput!]
+        let location = StudentInformation.translatedCoords
+        let student = UdacityClient.sharedInstance().userInfo
         
-        ParseClient.sharedInstance().postStudentInfo(input) { (success, error) in
-            guard success else {
-                print(error!)
-                self.alertFailure()
-                return
-            }
-            
-            ParseClient.sharedInstance().getStudentLocation({ (success, error) in
-                guard success else {
-                    print(error!)
-                    self.alertFailure()
-                    return
-                }
-            
-                let student = StudentInformation.studentLocation!
-                
-                let lat = CLLocationDegrees(student.lat!)
-                let long = CLLocationDegrees(student.lon!)
-                
-                let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-                
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = coordinate
-                annotation.title = "\(student.first!) \(student.last!)"
-                annotation.subtitle = student.url
-                
-                self.map.addAnnotation(annotation)
-                updateInMain {
-                    self.zoomOnPin(coordinate)
-                }
-                
-            })
-        }
+        let coordinate = CLLocationCoordinate2D(latitude: location![0], longitude: location![1])
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        annotation.title = "\(student!["first_name"]!) \(student!["last_name"]!)"
+        annotation.subtitle = input![1]
+        
+        map.addAnnotation(annotation)
+        zoomOnPin(coordinate)
     }
     
     func zoomOnPin(_ coordinate: CLLocationCoordinate2D) {
-        indicator.stopAnimating()
-        let span = MKCoordinateSpanMake(5, 5)
+        let span = MKCoordinateSpanMake(0.5, 0.5)
         let region = MKCoordinateRegion(center: coordinate, span: span)
         self.map.setRegion(region, animated: true)
     }
@@ -75,7 +50,22 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
         present(alert, animated: true, completion: nil)
     }
     
-    @IBAction func leave(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+    @IBAction func post(_ sender: Any) {
+        indicator.startAnimating()
+        
+        ParseClient.sharedInstance().postStudentInfo(input!) { (success, error) in
+            guard success else {
+                print(error!)
+                updateInMain {
+                    self.alertFailure()
+                }
+                return
+            }
+            
+            updateInMain {
+                self.indicator.stopAnimating()
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
     }
 }

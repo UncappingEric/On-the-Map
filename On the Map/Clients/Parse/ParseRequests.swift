@@ -12,7 +12,23 @@ import MapKit
 
 extension ParseClient {
     
-    func postStudentInfo (_ input: [String], _ completion: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
+    func translateLocation(_ input: String, _ completion: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
+        
+        let geoCoder = CLGeocoder()
+        geoCoder.geocodeAddressString(input) { (placemarks, error) in
+            
+            guard let placemarks = placemarks, let location = placemarks.first?.location else {
+                completion(false, "Location cannot be transalated")
+                return
+            }
+            
+            StudentInformation.translatedCoords = [location.coordinate.latitude, location.coordinate.longitude]
+            
+            completion(true, nil)
+        }
+    }
+    
+    func postStudentInfo(_ input: [String], _ completion: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
         let parameters = [String: String]()
         let user = UdacityClient.sharedInstance().userInfo!
         let id = UdacityClient.sharedInstance().userID!
@@ -30,48 +46,35 @@ extension ParseClient {
         
         let f = user["first_name"] as! String?
         let l = user["last_name"] as! String?
-        let loc = input[0]
-        let link = input[1]
+        let locCoords = StudentInformation.translatedCoords!
         
-        let geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(loc) { (placemarks, error) in
+        request.httpBody = "{\"uniqueKey\": \"\(id)\", \"firstName\": \"\(f!)\", \"lastName\": \"\(l!)\",\"mapString\": \"\(input[0])\", \"mediaURL\": \"\(input[1])\",\"latitude\": \(locCoords[0]), \"longitude\": \(locCoords[1])}".data(using: .utf8)
+        
+        request.addValue(Constants.ApId, forHTTPHeaderField: "X-Parse-Application-Id")
+        request.addValue(Constants.ApiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
-            guard let placemarks = placemarks, let location = placemarks.first?.location else {
-                completion(false, "Location cannot be transalated")
+            func reportError(_ error: String) {
+                completion(false, error)
                 return
             }
             
-            let lat = location.coordinate.latitude
-            let lon = location.coordinate.longitude
-            
-            request.httpBody = "{\"uniqueKey\": \"\(id)\", \"firstName\": \"\(f!)\", \"lastName\": \"\(l!)\",\"mapString\": \"\(loc)\", \"mediaURL\": \"\(link)\",\"latitude\": \(lat), \"longitude\": \(lon)}".data(using: .utf8)
-            
-            request.addValue(Constants.ApId, forHTTPHeaderField: "X-Parse-Application-Id")
-            request.addValue(Constants.ApiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                
-                func reportError(_ error: String) {
-                    completion(false, error)
-                    return
-                }
-                
-                guard error == nil else {
-                    reportError("Recieved an error while posting info")
-                    return
-                }
-                
-                guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-                    reportError("Your request returned a status code other than 2xx!")
-                    return
-                }
-                
-                completion(true, nil)
+            guard error == nil else {
+                reportError("Recieved an error while posting info")
+                return
             }
             
-            task.resume()
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
+                reportError("Your request returned a status code other than 2xx!")
+                return
+            }
+            
+            completion(true, nil)
         }
+        
+        task.resume()
     }
     
     func getPostedData (_ completion: @escaping (_ success: Bool, _ error: String?, _ data: [[String: Any]]?) -> Void) {
