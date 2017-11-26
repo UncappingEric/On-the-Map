@@ -18,6 +18,8 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
     
     var input: [String]?
     
+    // MARK: Lifecycle Function
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         finish.layer.cornerRadius = 5.0
@@ -49,6 +51,8 @@ class SuccessfulPostController: UIViewController, MKMapViewDelegate {
         alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    
+    // MARK: Button Actions
     
     @IBAction func post(_ sender: Any) {
         indicator.startAnimating()

@@ -14,10 +14,14 @@ class MapController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     
+    // MARK: Lifecycle Functions
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
     }
+    
+    // MARK: Delegate Functions
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let reuseId = "pin"

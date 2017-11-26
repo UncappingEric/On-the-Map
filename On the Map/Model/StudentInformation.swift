@@ -11,9 +11,10 @@ import MapKit
 
 struct StudentInformation{
     
+    // MARK: Static Variables
+    
     static var studentLocation: StudentInformation?
     static var locations = [StudentInformation]()
-    
     static var translatedCoords: [CLLocationDegrees]?
     
     var first:  String?
@@ -22,6 +23,8 @@ struct StudentInformation{
     var lon:    Float?
     var mapString: String?
     var url:    String?
+    
+    // MARK: Initializer
     
     init(_ dict: [String: Any]) {
         first        =   dict[ParseClient.ResponseKeys.First] as! String?

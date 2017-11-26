@@ -18,11 +18,37 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var postButton: UIButton!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
     
+    // MARK: Lifecycle Functions
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         locationInput.delegate = self
         linkInput.delegate = self
         postButton.layer.cornerRadius = 5.0
+    }
+    
+    // MARK: Delegate Functions
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    // MARK: Alert
+    
+    func alertFailure() {
+        indicator.stopAnimating()
+        enableUI(enable: true)
+        let alert = UIAlertController(title: "Location Error", message:
+            "There was an error finding your location.", preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    // MARK: Button Actions
+    
+    @IBAction func cancel(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func findLocation(_ sender: Any) {
@@ -57,19 +83,7 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    func alertFailure() {
-        indicator.stopAnimating()
-        enableUI(enable: true)
-        let alert = UIAlertController(title: "Location Error", message:
-            "There was an error finding your location.", preferredStyle: UIAlertControllerStyle.alert)
-        alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-        present(alert, animated: true, completion: nil)
-    }
+    // MARK: UI Functions
     
     func enableUI(enable: Bool) {
         locationInput.isEnabled = enable
@@ -77,9 +91,5 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
         linkInput.isEnabled = enable
         linkInput.alpha = enable ? 1.0 : 0.5
         postButton.isEnabled = enable
-    }
-    
-    @IBAction func cancel(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
     }
 }

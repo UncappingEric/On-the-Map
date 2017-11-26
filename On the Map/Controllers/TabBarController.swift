@@ -14,6 +14,8 @@ class TabBarController: UITabBarController {
     
     var table: UITableView?
     
+    // MARK: Lifecycle Functions
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         table   = (viewControllers![1] as? TableViewController)?.tableView
@@ -31,6 +33,10 @@ class TabBarController: UITabBarController {
         }
     }
     
+    func getMap() -> MKMapView {
+        return ((viewControllers![0] as? MapController)?.mapView)!
+    }
+    
     func storeAndShow(_ dictionary: [[String: Any]]) {
         self.getMap().removeAnnotations(ParseClient.sharedInstance().annotations)
         ParseClient.sharedInstance().storeStudentLocations(dictionary)
@@ -45,9 +51,14 @@ class TabBarController: UITabBarController {
         }
     }
     
-    func getMap() -> MKMapView {
-        return ((viewControllers![0] as? MapController)?.mapView)!
+    func showFailureAlert() {
+        let alert = UIAlertController(title: "Data Error", message:
+            "Error retriving data.", preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+        present(alert, animated: true, completion: nil)
     }
+    
+    // MARK: Button Actions
     
     @IBAction func refresh() {
         getMap().removeAnnotations(ParseClient.sharedInstance().annotations)
@@ -63,13 +74,6 @@ class TabBarController: UITabBarController {
             }
             self.storeAndShow(results!)
         }
-    }
-    
-    func showFailureAlert() {
-        let alert = UIAlertController(title: "Data Error", message:
-            "Error retriving data.", preferredStyle: UIAlertControllerStyle.alert)
-        alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-        present(alert, animated: true, completion: nil)
     }
     
     @IBAction func logout() {

@@ -11,6 +11,8 @@ import UIKit
 
 class TableViewController: UITableViewController {
     
+    // MARK: Delegate Functions
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let urlString = StudentInformation.locations[indexPath.row].url else {
             let alert = UIAlertController(title: "URL Error", message:
